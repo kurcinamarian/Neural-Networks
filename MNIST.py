@@ -5,7 +5,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
 batch_size = 128
-learning_rate = 0.01
+learning_rate = 0.05
 num_epochs = 30
 device = torch.device("cpu")
 
@@ -26,9 +26,9 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         self.layers = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(28 * 28, 250),
+            nn.Linear(28 * 28, 500),
             nn.ReLU(),
-            nn.Linear(250, 250),
+            nn.Linear(500, 250),
             nn.ReLU(),
             nn.Linear(250, 10),
         )
@@ -42,11 +42,11 @@ def train_model(optimizer_type):
     criterion = nn.CrossEntropyLoss()
 
     if optimizer_type == "SGD":
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+        optimizer = optim.SGD(model.parameters(), lr=0.05)
     elif optimizer_type == "SGD_momentum":
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=0.05, momentum=0.9)
     elif optimizer_type == "ADAM":
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
     else:
         raise ValueError("Unknown optimizer type")
 
@@ -63,6 +63,7 @@ def train_model(optimizer_type):
             optimizer.step()
 
             running_loss += loss.item()
+
         print(f"{optimizer_type} - Epoch {epoch + 1}, Loss: {running_loss / len(train_loader):.4f}")
 
     return model
@@ -72,6 +73,7 @@ def evaluate_model(model):
     model.eval()
     correct = 0
     total = 0
+    matrix = [[0 for _ in range(10)] for _ in range(10)]
     with torch.no_grad():
         for images, labels in test_loader:
             images, labels = images.to(device), labels.to(device)
@@ -79,9 +81,13 @@ def evaluate_model(model):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+            for p, t in zip(predicted, labels):
+                matrix[t.item()][p.item()] += 1
 
     accuracy = 100 * correct / total
     print(f"Test Accuracy: {accuracy:.2f}%")
+    for row in matrix:
+        print(row)
     return accuracy
 
 
