@@ -5,7 +5,6 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
 batch_size = 128
-learning_rate = 0.05
 num_epochs = 30
 device = torch.device("cpu")
 
@@ -26,11 +25,11 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         self.layers = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(28 * 28, 500),
+            nn.Linear(28 * 28, 1000),
             nn.ReLU(),
-            nn.Linear(500, 250),
+            nn.Linear(1000, 500),
             nn.ReLU(),
-            nn.Linear(250, 10),
+            nn.Linear(500, 10),
         )
 
     def forward(self, x):

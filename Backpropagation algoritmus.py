@@ -1,5 +1,7 @@
 import numpy as np
 
+np.random.seed(42)
+
 class Model:
     def __init__(self, layers):
         self.layers = layers
@@ -20,6 +22,10 @@ class Linear:
         self.b = np.random.randn(output_size)
         self.dW = None
         self.db = None
+        if momentum:
+            self.momentum = 0.9
+            self.vW = np.zeros_like(self.W)
+            self.vb = np.zeros_like(self.b)
 
     def forward(self, x):
         self.input = x
@@ -31,10 +37,14 @@ class Linear:
 
         self.dW = np.dot(self.input.T, grad)
         self.db = np.sum(grad, axis=0)
-
-        self.W -= learning_rate * self.dW
-        self.b -= learning_rate * self.db
-
+        if momentum:
+            self.vW = self.momentum*self.vW - learning_rate * self.dW
+            self.vb = self.momentum*self.vb - learning_rate * self.db
+            self.W += self.vW
+            self.b += self.vb
+        else:
+            self.W -= learning_rate * self.dW
+            self.b -= learning_rate * self.db
         return np.dot(grad, self.W.T)
 
 
@@ -43,7 +53,6 @@ class Sigmoid:
         self.output = None
 
     def forward(self, x):
-        self.input = x
         self.output = 1 / (1 + np.exp(-x))
         return self.output
 
@@ -90,28 +99,32 @@ class MSELoss:
         return 2 * (self.predicted - self.target) / self.predicted.size
 
 
-model = Model([Linear(2, 4), Tanh(), Linear(4, 1), Sigmoid()])
 
 input_data = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 predicted_output = np.array([[0], [1], [1], [0]])
 
 loss_fn = MSELoss()
 learning_rate = 0.1
-epoch_number = 500
+epoch_number = 50000
+momentum = False
+
+model = Model([Linear(2, 4), Tanh(), Linear(4, 1), Tanh()])
 
 losses = []
 for epoch in range(epoch_number):
+    epoch_loss = 0
     for i in range(len(input_data)):
         prediction = model.forward(input_data[i])
 
         loss = loss_fn.forward(prediction, predicted_output[i])
         losses.append(loss)
-
         grad = loss_fn.backward()
         model.backward(grad)
 
+        epoch_loss += loss
+
     if epoch % 10 == 0:
-        print(f'Epoch {epoch}, Loss {loss}')
+        print(f'Epoch {epoch}, Loss {epoch_loss}')
 
 print(f'Epoch {epoch}, Loss {loss}')
 for i in range(len(input_data)):
