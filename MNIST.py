@@ -144,6 +144,10 @@ def test_model(model):
         print(f"\t\t{i:<3} |", "  ".join(f"{x:5}" for x in row))
     return accuracy
 
+#testing the parameters
+l_r = float(input("Learning rate:"))
+momentum = float(input("Momentum for SGD_momentum:"))
+
 #transformation of data
 transform = transforms.Compose([
     transforms.ToTensor(),
