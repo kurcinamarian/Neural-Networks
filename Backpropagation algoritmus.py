@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#random seed for testing
-np.random.seed(43)
-
 class Model:
     def __init__(self, layers):
         self.layers = layers
@@ -26,7 +23,7 @@ class Linear:
         #weights matrix
         self.W = np.random.randn(input_size, output_size)
         #bias matrix
-        self.b = np.random.randn(output_size)
+        self.b = np.random.randn(1,output_size)
         #gradient weights matrix
         self.dW = None
         #gradient bias matrix
@@ -47,15 +44,10 @@ class Linear:
 
 
     def backward(self, grad):
-        #Reshape of input
-        self.input = self.input.reshape(1, -1)
-        #Reshape of gradient
-        grad = grad.reshape(1, -1)
-
-        #compute gradient weights matrix
-        self.dW = np.dot(self.input.T, grad)
+        #compute gradient weights matrix, reshape so diameters align
+        self.dW = np.dot(self.input.T.reshape(-1, 1), grad.reshape(1, -1))
         #compute gradient bias matrix
-        self.db = np.sum(grad, axis=0)
+        self.db = grad
         #if momentum update acoring to momentum rate
         if momentum:
             #compute weight velocity matrix
@@ -152,7 +144,7 @@ model = Model([
     Linear(2, 4),
     Tanh(),
     Linear(4, 1),
-    Sigmoid()
+    Tanh(),
 ])
 loss_fn = MSELoss()
 

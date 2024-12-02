@@ -17,12 +17,12 @@ class MLP(nn.Module):
             nn.Flatten(),
             #first layer (input to 100)
             nn.Linear(28 * 28, 100),
-            #relu activation function
+            #activation function
             nn.ReLU(),
             #second layer (100 to 50)
             nn.Linear(100, 50),
-            #relu activation function
-            nn.ReLU(),
+            #activation function
+            nn.Sigmoid(),
             #third layer (50 to output)
             nn.Linear(50, 10),
         )
@@ -144,10 +144,6 @@ def test_model(model):
         print(f"\t\t{i:<3} |", "  ".join(f"{x:5}" for x in row))
     return accuracy
 
-#testing the parameters
-l_r = float(input("Learning rate:"))
-momentum = float(input("Momentum for SGD_momentum:"))
-
 #transformation of data
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -164,19 +160,18 @@ train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False)
 
 #tries to train and then test model for optimization types
-
 print(f"\nTraining with SGD")
 #train model with SGD
-model = train_model("SGD",0.1,0.9)
+model = train_model("SGD",0.1,0)
 #test model
 test_accuracy_SGD = test_model(model)
 print(f"\nTraining with SGD_momentum")
 # train model with SGD_momentum
-model = train_model("SGD_momentum", 0.1, 0.9)
+model = train_model("SGD_momentum", 0.1, 0.95)
 # test model
 test_accuracy_SGD_momentum = test_model(model)
 print(f"\nTraining with ADAM")
 # train model with ADAM
-model = train_model("ADAM", 0.01, 0.9)
+model = train_model("ADAM", 0.001, 0)
 # test model
 test_accuracy_ADAM = test_model(model)
