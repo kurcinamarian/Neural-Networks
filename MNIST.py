@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 #number of epochs
-num_epochs = 30
+num_epochs = 5
 
 #model definition
 class MLP(nn.Module):
